@@ -1,4 +1,4 @@
-connect 127.0.0.1/9160;
+connect 192.168.56.101/9160;
 
 create keyspace Zipkin;
 use Zipkin;

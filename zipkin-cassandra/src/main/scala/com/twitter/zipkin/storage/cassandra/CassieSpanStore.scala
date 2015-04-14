@@ -389,7 +389,7 @@ class CassieSpanStore(
   ): Future[Seq[IndexedTraceId]] = {
     QueryGetTraceIdsByAnnotationCounter.incr()
     val key = annotationKey(serviceName, annotation, value)
-    AnnotationsIndex.getRowSlice(key, None, Some(endTs), limit, Order.Reversed) map colToIndexedTraceId
+    AnnotationsIndex.getRowSlice(key, Some(endTs), None, limit, Order.Reversed) map colToIndexedTraceId
   }
 
   def getTracesDuration(traceIds: Seq[Long]): Future[Seq[TraceIdDuration]] = {

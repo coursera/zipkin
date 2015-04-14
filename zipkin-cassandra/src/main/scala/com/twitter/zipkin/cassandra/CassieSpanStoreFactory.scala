@@ -123,8 +123,12 @@ trait CassieSpanStoreFactory { self: App =>
     val scopedStats = stats.scope(cassieKeyspace())
     val Name.Bound(addr) = Resolver.eval(cassieDest())
     val cluster = new VarAddrCluster(addr)
-    //TODO: properly tune these
+
     val keyspace = KeyspaceBuilder(cluster, cassieKeyspace(), scopedStats, { () => DefaultTracer })
+      .timeout(10000)
+      .requestTimeout(8000)
+      .connectTimeout(8000)
+      .maxConnectionsPerHost(20)
 
     new CassieSpanStore(
       keyspace.connect(),

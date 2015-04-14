@@ -133,7 +133,7 @@ object Zipkin extends Build {
       query, queryCore, queryService, web, zipkinAggregate,
       collectorScribe, collectorCore, collectorService,
       sampler, receiverScribe, receiverKafka, collector,
-      cassandra, anormDB, kafka, redis, hbase
+      cassandra, anormDB, kafka, redis, hbase, prod
     )
 
   lazy val tracegen = Project(
@@ -545,6 +545,30 @@ object Zipkin extends Build {
   ).dependsOn(
     tracegen, web, anormDB, query,
     receiverScribe, zookeeper
+  )
+
+  lazy val prod = Project(
+    id = "zipkin-prod",
+    base = file("zipkin-prod"),
+    settings = defaultSettings ++ assemblySettings
+  ).settings(
+    mergeStrategy in assembly <<= (mergeStrategy in assembly) { (old) =>
+      {
+        case PathList("org", xs @ _*) => MergeStrategy.first
+        case PathList("com", xs @ _*) => MergeStrategy.first
+        case "BUILD" => MergeStrategy.first
+        case PathList(ps @_*) if ps.last == "package-info.class" => MergeStrategy.discard
+        case x => old(x)
+      }
+    },
+    libraryDependencies ++= Seq(
+      finagle("zipkin"),
+      finagle("stats"),
+      twitterServer
+    )
+  ).dependsOn(
+    web, query, cassandra,
+    receiverKafka, zookeeper
   )
 
   lazy val zipkinDoc = Project(

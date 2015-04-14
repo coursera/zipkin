@@ -34,6 +34,7 @@ class Handlers(jsonGenerator: ZipkinJson, mustacheGenerator: ZipkinMustache) {
 
   case class MustacheRenderer(template: String, data: Map[String, Object]) extends Renderer {
     def apply(response: Response) {
+      response.setContentType("text/html")
       response.contentString = generate
     }
 

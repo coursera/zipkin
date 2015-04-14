@@ -2,13 +2,13 @@ package com.twitter.zipkin.storage.cassandra
 
 /*
  * Copyright 2012 Twitter Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -270,7 +270,7 @@ case class CassandraIndex(
       ba.host match {
         case Some(endpoint) => {
           WRITE_REQUEST_COUNTER.incr(2)
-          val key = encode(endpoint.serviceName, ba.key).getBytes
+          val key = encode(endpoint.serviceName.toLowerCase, ba.key).getBytes
           val col = Column[Long, Long](timestamp, span.traceId).ttl(dataTimeToLive)
           batch.insert(ByteBuffer.wrap(key ++ INDEX_DELIMITER.getBytes ++ Util.getArrayFromBuffer(ba.value)), col)
           batch.insert(ByteBuffer.wrap(key), col)

@@ -107,7 +107,7 @@ trait CassieSpanStoreFactory { self: App =>
   val cassieSpanCodec = Defaults.SpanCodec
 
   val cassieKeyspace = flag("zipkin.store.cassie.keyspace", Defaults.KeyspaceName, "name of the keyspace to use")
-  val cassieDest = flag("zipkin.store.cassie.dest", "localhost:9160", "dest of the cassandra cluster")
+  val cassieDest = flag("zipkin.store.cassie.dest", "localhost1,localhost2", "dest of the cassandra cluster")
 
   val cassieWriteConsistency = flag[WriteConsistency]("zipkin.store.cassie.writeConsistency", Defaults.WriteConsistency,  "cassie write consistency (one, quorum, all)")
   val cassieReadConsistency = flag[ReadConsistency]("zipkin.store.cassie.readConsistency", Defaults.ReadConsistency, "cassie read consistency (one, quorum, all)")
@@ -121,14 +121,8 @@ trait CassieSpanStoreFactory { self: App =>
 
   def newCassandraStore(stats: StatsReceiver = DefaultStatsReceiver.scope("cassie")): CassieSpanStore = {
     val scopedStats = stats.scope(cassieKeyspace())
-    val Name.Bound(addr) = Resolver.eval(cassieDest())
-    val cluster = new VarAddrCluster(addr)
 
-    val keyspace = KeyspaceBuilder(cluster, cassieKeyspace(), scopedStats, { () => DefaultTracer })
-      .timeout(10000)
-      .requestTimeout(8000)
-      .connectTimeout(8000)
-      .maxConnectionsPerHost(20)
+    val keyspace = Keyspace.static(nodes = cassieDest().split(",").toSet)
 
     new CassieSpanStore(
       keyspace.connect(),

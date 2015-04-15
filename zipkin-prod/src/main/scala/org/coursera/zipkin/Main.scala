@@ -45,9 +45,10 @@ object Main extends TwitterServer with Closer
 
     def process(spans: Seq[thrift.Span]): Future[Unit] = {
       val converted = spans.map(_.toSpan)
-      store(converted) onFailure {
+      store(converted) rescue {
         case t: Throwable =>
           logger.error("Error while writing span.", t)
+          Future.value(())
       }
     }
 

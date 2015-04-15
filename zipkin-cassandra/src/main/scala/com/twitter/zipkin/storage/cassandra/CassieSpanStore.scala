@@ -377,7 +377,7 @@ class CassieSpanStore(
     val idx: ColumnFamily[String, Long, Long] =
       spanName.map(_ => ServiceSpanNameIndex).getOrElse(ServiceNameIndex)
     // TODO: endTs seems wrong here
-    idx.getRowSlice(key, Some(endTs), None, limit, Order.Reversed) map colToIndexedTraceId
+    idx.getRowSlice(key, Some(endTs), None, limit, Order.Reversed).map(x => colToIndexedTraceId(x).distinct)
   }
 
   def getTraceIdsByAnnotation(
@@ -389,7 +389,7 @@ class CassieSpanStore(
   ): Future[Seq[IndexedTraceId]] = {
     QueryGetTraceIdsByAnnotationCounter.incr()
     val key = annotationKey(serviceName, annotation, value)
-    AnnotationsIndex.getRowSlice(key, Some(endTs), None, limit, Order.Reversed) map colToIndexedTraceId
+    AnnotationsIndex.getRowSlice(key, Some(endTs), None, limit, Order.Reversed).map(x => colToIndexedTraceId(x).distinct)
   }
 
   def getTracesDuration(traceIds: Seq[Long]): Future[Seq[TraceIdDuration]] = {

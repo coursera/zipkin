@@ -133,7 +133,8 @@ object Zipkin extends Build {
       query, queryCore, queryService, web, zipkinAggregate,
       collectorScribe, collectorCore, collectorService,
       sampler, receiverScribe, receiverKafka, collector,
-      cassandra, anormDB, kafka, redis, hbase, prod
+      cassandra, anormDB, kafka, redis, hbase, prodWeb,
+      prodReceiver, courrelate
     )
 
   lazy val tracegen = Project(
@@ -156,7 +157,8 @@ object Zipkin extends Build {
         util("core"),
         zk("client"),
         algebird("core"),
-        "com.twitter" %% "ostrich" % ostrichVersion
+        "com.twitter" %% "ostrich" % ostrichVersion,
+        "com.typesafe.play" % "play-json_2.10" % "2.3.9"
       ) ++ scalaTestDeps
     )
 
@@ -547,9 +549,57 @@ object Zipkin extends Build {
     receiverScribe, zookeeper
   )
 
-  lazy val prod = Project(
-    id = "zipkin-prod",
-    base = file("zipkin-prod"),
+  lazy val prodWeb = Project(
+    id = "zipkin-prod-web",
+    base = file("zipkin-prod-web"),
+    settings = defaultSettings ++ assemblySettings
+  ).settings(
+      mergeStrategy in assembly <<= (mergeStrategy in assembly) { (old) =>
+      {
+        case PathList("org", xs @ _*) => MergeStrategy.first
+        case PathList("com", xs @ _*) => MergeStrategy.first
+        case "BUILD" => MergeStrategy.first
+        case PathList(ps @_*) if ps.last == "package-info.class" => MergeStrategy.discard
+        case x => old(x)
+      }
+      },
+      libraryDependencies ++= Seq(
+        finagle("zipkin"),
+        finagle("stats"),
+        twitterServer
+      )
+    ).dependsOn(
+      web, query, cassandra, zookeeper
+    )
+
+  lazy val prodReceiver = Project(
+    id = "zipkin-prod-receiver",
+    base = file("zipkin-prod-receiver"),
+    settings = defaultSettings ++ assemblySettings
+  ).settings(
+      mergeStrategy in assembly <<= (mergeStrategy in assembly) { (old) =>
+      {
+        case PathList("org", xs @ _*) => MergeStrategy.first
+        case PathList("com", xs @ _*) => MergeStrategy.first
+        case "BUILD" => MergeStrategy.first
+        case PathList(ps @_*) if ps.last == "package-info.class" => MergeStrategy.discard
+        case x => old(x)
+      }
+      },
+      libraryDependencies ++= Seq(
+        finagle("zipkin"),
+        finagle("stats"),
+        twitterServer
+      )
+    ).dependsOn(
+      cassandra, receiverKafka, zookeeper
+    )
+
+
+
+  lazy val courrelate = Project(
+    id = "zipkin-courrelate",
+    base = file("zipkin-courrelate"),
     settings = defaultSettings ++ assemblySettings
   ).settings(
     mergeStrategy in assembly <<= (mergeStrategy in assembly) { (old) =>
@@ -567,8 +617,7 @@ object Zipkin extends Build {
       twitterServer
     )
   ).dependsOn(
-    web, query, cassandra,
-    receiverKafka, zookeeper
+    web, cassandra, receiverKafka, zookeeper
   )
 
   lazy val zipkinDoc = Project(

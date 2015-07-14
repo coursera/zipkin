@@ -40,7 +40,7 @@ trait KafkaSpanReceiverFactory { self: App =>
       put("zookeeper.session.timeout.ms", kafkaSessionTimeout())
       put("zookeeper.sync.time.ms", kafkaSyncTime())
       put("auto.offset.reset", kafkaAutoOffset())
-      put("auto.commit.interval.ms", "10")
+      put("auto.commit.interval.ms", "10000")
       put("consumer.id", "zipkin-consumerid")
       put("consumer.timeout.ms", "-1")
       put("rebalance.max.retries", "4")

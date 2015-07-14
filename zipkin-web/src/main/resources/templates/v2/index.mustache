@@ -10,7 +10,7 @@
     </div>
 
     <div class="form-group">
-      <select data-placeholder="Span Name" class="form-control input-sm" style="width: 180px;" name="spanName" id="spanName">
+      <select data-placeholder="Span Name" class="form-control input-sm" style="width: 570px;" name="spanName" id="spanName">
         <option value="all">all</option>
       {{#spans}}
         <option value="{{name}}" {{selected}}>{{name}}</option>
@@ -119,12 +119,12 @@
         <p>Once that is done you have three options to pick from. See notes on each below.</p>
 
         <h4>1. Lookups by span name</h4>
-        <p>Span names are generally thrift method names or Rails endpoints. This allows you to look up traces
+        <p>Span names are generally scala class names. This allows you to look up traces
           that accessed a particular part of the service.</p>
 
         <h4>2. Lookups by annotation</h4>
         <p>An annotation is a point in time in the trace. It is assigned a string value, this is what you can look up
-          by in this field. Could be things like <strong>finagle.timeout</strong></p>
+          by in this field.</p>
 
         <h4>3. Lookups by key/value</h4>
         <p>Key / value annotations are just extra metadata attached to a trace. This could be things like the url hit,
@@ -137,10 +137,7 @@
           </thead>
           <tbody>
             <tr>
-              <td>tfe.uri</td><td>/1/trends/available.json?lang=en</td>
-            </tr>
-            <tr>
-              <td>http.responsecode</td><td>500 Internal Server Error</td>
+              <td>requestId</td><td>w5TXEuOOEeS2WCIACy4CoQ</td>
             </tr>
           </tbody>
         </table>

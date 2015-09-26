@@ -110,14 +110,15 @@ class ThriftQueryService(
     endTs: Long = -1
   ): Future[thriftscala.QueryResponse] = {
     sortedTraceIds(Future.value(ids), qr.limit, qr.order) map { sortedIds =>
-      val (min, max) = sortedIds match {
+      val distinctSorted = sortedIds.distinct
+      val (min, max) = distinctSorted match {
         case Nil =>
           (-1L, endTs)
         case _   =>
           val ts = ids.map(_.timestamp)
           (ts.min, ts.max)
       }
-      thriftscala.QueryResponse(sortedIds, min, max)
+      thriftscala.QueryResponse(distinctSorted, min, max)
     }
   }
 

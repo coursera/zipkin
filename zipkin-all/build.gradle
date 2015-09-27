@@ -1,0 +1,33 @@
+apply plugin: 'com.github.johnrengelman.shadow'
+ext.mainClassName = 'org.coursera.zipkin.Main'
+
+task run(type:JavaExec) {
+    main = mainClassName
+    classpath = sourceSets.main.runtimeClasspath
+    if(project.hasProperty('runArgs')){
+        args runArgs.split(',')
+    }
+    workingDir project.buildDir
+}
+
+jar.manifest.attributes 'Main-Class': mainClassName
+
+tasks.build.dependsOn(shadowJar)
+artifacts.zipkinUpload shadowJar
+
+dependencies {
+    compile project(':zipkin-cassandra')
+    compile project(':zipkin-receiver-kafka')
+    compile project(':zipkin-web')
+    compile project(':zipkin-query')
+
+    compile "com.twitter:algebird-core_${scalaInterfaceVersion}:${commonVersions.algebird}"
+    compile "com.twitter:twitter-server_${scalaInterfaceVersion}:${commonVersions.twitterServer}"
+    compile 'com.github.spullara.mustache.java:compiler:0.8.17'
+    compile 'com.twitter.common:stats-util:0.0.58'
+    compile "org.slf4j:slf4j-simple:" + commonVersions.slf4j
+
+    compile "com.twitter:finagle-exception_${scalaInterfaceVersion}:${commonVersions.finagle}"
+    compile "com.twitter:finagle-thriftmux_${scalaInterfaceVersion}:${commonVersions.finagle}"
+    compile "com.twitter:finagle-zipkin_${scalaInterfaceVersion}:${commonVersions.finagle}"
+}

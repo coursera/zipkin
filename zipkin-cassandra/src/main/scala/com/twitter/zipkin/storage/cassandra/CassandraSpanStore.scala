@@ -137,7 +137,7 @@ class CassandraSpanStore(
 
             Future.join(
               storeFuture,
-              FutureUtil.toFuture(repository.storeTraceIdBySpanName(serviceName, span.name, timestamp, span.traceId, indexTtl.inSeconds)))
+              FutureUtil.toFuture(repository.storeTraceIdBySpanName(serviceName, span.name.toLowerCase, timestamp, span.traceId, indexTtl.inSeconds)))
           } else storeFuture
         })
     } getOrElse Future.value(())

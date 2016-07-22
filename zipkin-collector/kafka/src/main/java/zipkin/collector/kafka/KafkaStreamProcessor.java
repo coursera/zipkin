@@ -59,11 +59,18 @@ final class KafkaStreamProcessor implements Runnable {
       if (bytes[0] == '[') {
         collector.acceptSpans(bytes, Codec.JSON, NOOP);
       } else {
-        if (bytes[0] == 12 /* TType.STRUCT */) {
-          collector.acceptSpans(bytes, Codec.THRIFT, NOOP);
-        } else {
-          collector.acceptSpans(Collections.singletonList(bytes), Codec.THRIFT, NOOP);
-        }
+
+        /*
+          Coursera uses comma separated base64 encoded binary thrift structs.
+         */
+
+        collector.acceptSpans(CsvBase64Decoder.decode(bytes), Codec.THRIFT, NOOP);
+
+        // if (bytes[0] == 12 /* TType.STRUCT */) {
+        //   collector.acceptSpans(bytes, Codec.THRIFT, NOOP);
+        // } else {
+        //   collector.acceptSpans(Collections.singletonList(bytes), Codec.THRIFT, NOOP);
+        // }
       }
     }
   }

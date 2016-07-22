@@ -56,6 +56,7 @@ public final class KafkaCollector implements CollectorComponent, Closeable {
     String groupId = "zipkin";
     int streams = 1;
     int maxMessageSize = 1024 * 1024;
+    String autoOffsetReset = "smallest";
 
     @Override public Builder storage(StorageComponent storage) {
       delegate.storage(storage);
@@ -100,6 +101,15 @@ public final class KafkaCollector implements CollectorComponent, Closeable {
     /** Maximum size of a message containing spans in bytes. Defaults to 1 MiB */
     public Builder maxMessageSize(int bytes) {
       this.maxMessageSize = bytes;
+      return this;
+    }
+
+    /**
+     * Where to automatically reset the consumer offset to, in event when there is no
+     * initial offset in Zookeeper or if an offset is out of range.
+     */
+    public Builder autoOffsetReset(String autoOffsetReset) {
+      this.autoOffsetReset = autoOffsetReset;
       return this;
     }
 
@@ -154,7 +164,7 @@ public final class KafkaCollector implements CollectorComponent, Closeable {
       props.put("group.id", builder.groupId);
       props.put("fetch.message.max.bytes", String.valueOf(builder.maxMessageSize));
       // Same default as zipkin-scala, and keeps tests from hanging
-      props.put("auto.offset.reset", "smallest");
+      props.put("auto.offset.reset", builder.autoOffsetReset);
       this.config = new ConsumerConfig(props);
     }
 

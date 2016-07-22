@@ -23,6 +23,7 @@ public class ZipkinKafkaCollectorProperties {
   private String groupId = "zipkin";
   private int streams = 1;
   private int maxMessageSize = 1024 * 1024;
+  private String autoOffsetReset = "smallest";
 
   public String getTopic() {
     return topic;
@@ -64,12 +65,21 @@ public class ZipkinKafkaCollectorProperties {
     this.maxMessageSize = maxMessageSize;
   }
 
+  public void setAutoOffsetReset(String reset) {
+    this.autoOffsetReset = reset;
+  }
+
+  public String getAutoOffsetReset(String reset) {
+    return autoOffsetReset;
+  }
+
   public KafkaCollector.Builder toBuilder() {
     return KafkaCollector.builder()
         .topic(topic)
         .zookeeper(zookeeper)
         .groupId(groupId)
         .streams(streams)
-        .maxMessageSize(maxMessageSize);
+        .maxMessageSize(maxMessageSize)
+        .autoOffsetReset(autoOffsetReset);
   }
 }
